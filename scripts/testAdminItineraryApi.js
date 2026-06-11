@@ -1,0 +1,30 @@
+const http = require('http');
+
+const options = {
+  hostname: 'localhost',
+  port: 3000,
+  path: '/api/admin/itineraries?page=1&limit=10',
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer ' + process.argv[2] || ''
+  }
+};
+
+const req = http.request(options, (res) => {
+  let data = '';
+  
+  res.on('data', (chunk) => {
+    data += chunk;
+  });
+  
+  res.on('end', () => {
+    console.log('状态码:', res.statusCode);
+    console.log('响应数据:', data);
+  });
+});
+
+req.on('error', (error) => {
+  console.error('请求错误:', error);
+});
+
+req.end();
