@@ -18,8 +18,10 @@ const adminNewsRoutes = require('./adminNews');
 const guideRoutes = require('./guides');
 const newsRoutes = require('./news');
 const interactionRoutes = require('./interactions');
+const resetRoutes = require('./reset');
 
 router.use('/auth', authRoutes);
+router.use('/reset', resetRoutes);
 router.use('/users', userRoutes);
 router.use('/admin/users', adminUserRoutes);
 router.use('/admin/itineraries', adminItineraryRoutes);
