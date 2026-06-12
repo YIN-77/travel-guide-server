@@ -38,8 +38,8 @@ exports.login = async (req, res, next) => {
 
     const token = jwt.sign(
       { id: admin.id, username: admin.username },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
 
     res.json({
