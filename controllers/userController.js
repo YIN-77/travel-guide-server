@@ -50,8 +50,8 @@ exports.register = async (req, res, next) => {
     // 生成token
     const token = jwt.sign(
       { id: user.id, username: user.username, nickname: user.nickname },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
 
     res.status(201).json({
@@ -109,8 +109,8 @@ exports.login = async (req, res, next) => {
 
     const token = jwt.sign(
       { id: user.id, username: user.username, nickname: user.nickname },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
 
     res.json({
