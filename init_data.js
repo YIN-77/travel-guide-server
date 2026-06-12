@@ -9,29 +9,43 @@ async function initData() {
 
     console.log('\n正在初始化管理员账号...');
     const adminExists = await Admin.findOne({ where: { username: 'admin' } });
+    const correctAdminPassword = '$2a$10$qxGsrTrR19/OD7/IIJfwT.Jh2A7HCg7yok.1Y2Nj3vpvtuAbeBqMW';
     if (!adminExists) {
       await Admin.create({
         username: 'admin',
-        password: '$2a$10$rOzJqZxn5Q7q6Q6Q6Q6Q6uQ6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6',
+        password: correctAdminPassword,
         email: 'admin@travel.com'
       });
       console.log('管理员账号创建成功');
     } else {
-      console.log('管理员账号已存在');
+      if (adminExists.password !== correctAdminPassword) {
+        adminExists.password = correctAdminPassword;
+        await adminExists.save();
+        console.log('管理员密码已更新');
+      } else {
+        console.log('管理员账号已存在且密码正确');
+      }
     }
 
     console.log('\n正在初始化用户...');
     const userExists = await User.findOne({ where: { username: 'user' } });
+    const correctUserPassword = '$2a$10$LJ9WWPhVZYStg/OSc9VC5.Q078L44uNOv.HH178rNoiE7bGm8SO1u';
     if (!userExists) {
       await User.create({
         username: 'user',
-        password: '$2a$10$rOzJqZxn5Q7q6Q6Q6Q6Q6uQ6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q',
+        password: correctUserPassword,
         email: 'user@travel.com',
         nickname: '游客'
       });
       console.log('测试用户创建成功');
     } else {
-      console.log('测试用户已存在');
+      if (userExists.password !== correctUserPassword) {
+        userExists.password = correctUserPassword;
+        await userExists.save();
+        console.log('用户密码已更新');
+      } else {
+        console.log('测试用户已存在且密码正确');
+      }
     }
 
     console.log('\n正在初始化标签...');
@@ -221,10 +235,12 @@ async function initData() {
         coverImage: 'https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?w=800',
         days: 7,
         budget: 5000,
-        likes: 2150,
+        favorites: 2150,
         views: 18650,
         isFeatured: true,
-        authorId: 1
+        isOfficial: true,
+        isPublic: true,
+        userId: 1
       },
       {
         title: '四川熊猫之旅',
@@ -232,10 +248,12 @@ async function initData() {
         coverImage: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=800',
         days: 5,
         budget: 4000,
-        likes: 1890,
+        favorites: 1890,
         views: 15230,
         isFeatured: true,
-        authorId: 1
+        isOfficial: true,
+        isPublic: true,
+        userId: 1
       },
       {
         title: '海南三亚休闲游',
@@ -243,10 +261,51 @@ async function initData() {
         coverImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
         days: 4,
         budget: 3500,
-        likes: 1560,
+        favorites: 1560,
         views: 12380,
         isFeatured: false,
-        authorId: 1
+        isOfficial: false,
+        isPublic: true,
+        userId: 1
+      },
+      {
+        title: '西藏珠峰之旅',
+        description: '挑战世界之巅，感受高原魅力',
+        coverImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        days: 10,
+        budget: 8000,
+        favorites: 1280,
+        views: 11200,
+        isFeatured: true,
+        isOfficial: true,
+        isPublic: true,
+        userId: 1
+      },
+      {
+        title: '新疆伊犁草原行',
+        description: '漫步草原花海，体验民族风情',
+        coverImage: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800',
+        days: 8,
+        budget: 6000,
+        favorites: 980,
+        views: 8560,
+        isFeatured: false,
+        isOfficial: false,
+        isPublic: true,
+        userId: 1
+      },
+      {
+        title: '厦门鼓浪屿浪漫之旅',
+        description: '文艺小岛，浪漫之都',
+        coverImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+        days: 4,
+        budget: 3000,
+        favorites: 1680,
+        views: 14320,
+        isFeatured: true,
+        isOfficial: false,
+        isPublic: true,
+        userId: 1
       }
     ];
 

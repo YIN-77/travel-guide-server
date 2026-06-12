@@ -6,6 +6,7 @@ require('dotenv').config();
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 const { sequelize } = require('./models');
+const initData = require('./init_data');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,7 +56,7 @@ app.use(errorHandler);
 app.listen(PORT, async () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
 
-  // 同步数据库
+  // 同步数据库并初始化数据
   try {
     await sequelize.authenticate();
     console.log('数据库连接成功');
@@ -63,8 +64,12 @@ app.listen(PORT, async () => {
     // 同步表结构（不修改现有表）
     await sequelize.sync({ force: false });
     console.log('数据库表同步成功');
+    
+    // 初始化数据（更新密码等）
+    await initData();
+    console.log('数据初始化完成');
   } catch (error) {
-    console.error('数据库连接失败:', error);
+    console.error('数据库连接或初始化失败:', error);
   }
 });
 
