@@ -135,7 +135,7 @@ const adminItineraryController = {
       endDate.setDate(endDate.getDate() + (daysCount - 1));
       
       const itinerary = await Itinerary.create({
-        userId: 0, // 0表示官方行程，不关联用户，显示为"官方平台"
+        userId: null, // null表示官方行程，不关联用户，显示为"官方平台"
         title,
         description,
         startDate,
@@ -177,12 +177,10 @@ const adminItineraryController = {
               await ItineraryActivity.create({
                 itineraryDayId: dayRecord.id,
                 title: activity.title,
-                description: activity.description,
-                startTime: activity.startTime,
-                endTime: activity.endTime,
-                location: activity.location,
-                notes: activity.notes,
-                destinationId: activity.destinationId,
+                description: activity.description || '',
+                startTime: activity.time || activity.startTime || '',
+                location: activity.location || '',
+                images: activity.images || [],
                 sortOrder: i + 1
               });
             }

@@ -59,7 +59,7 @@ router.post('/test-create', async (req, res) => {
     endDate.setDate(endDate.getDate() + (daysCount - 1));
     
     const itinerary = await Itinerary.create({
-      userId: 0,
+      userId: null,
       title: title || 'test',
       description: description || '',
       startDate,
@@ -98,9 +98,10 @@ router.post('/test-create', async (req, res) => {
             await ItineraryActivity.create({
               itineraryDayId: dayRecord.id,
               title: activity.title,
-              description: activity.description,
-              startTime: activity.time || activity.startTime,
-              location: activity.location,
+              description: activity.description || '',
+              startTime: activity.time || activity.startTime || '',
+              location: activity.location || '',
+              images: activity.images || [],
               sortOrder: i + 1
             });
           }
