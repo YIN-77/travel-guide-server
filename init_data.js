@@ -319,11 +319,17 @@ async function initData() {
     console.log('行程规划初始化完成');
 
     console.log('\n✅ 数据库初始化完成！');
-    process.exit(0);
   } catch (error) {
     console.error('❌ 数据库初始化失败:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-initData();
+module.exports = initData;
+
+if (require.main === module) {
+  initData().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}
