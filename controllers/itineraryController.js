@@ -87,7 +87,12 @@ const itineraryController = {
       }
 
       if (activities && Array.isArray(activities)) {
-        for (const activity of activities) {
+        const sortedActivities = [...activities].sort((a, b) => {
+          if (a.dayNumber !== b.dayNumber) return a.dayNumber - b.dayNumber
+          return (a.time || '').localeCompare(b.time || '')
+        });
+        let sortOrder = 1;
+        for (const activity of sortedActivities) {
           const dayRecord = createdDays.find(d => d.dayNumber === activity.dayNumber);
           if (dayRecord) {
             await ItineraryActivity.create({
@@ -97,7 +102,7 @@ const itineraryController = {
               startTime: activity.time,
               location: activity.location,
               images: activity.images || [],
-              sortOrder: 1
+              sortOrder: sortOrder++
             }, { transaction });
           }
         }

@@ -127,19 +127,21 @@ const adminItineraryController = {
   // 创建官方行程（管理员）
   createOfficialItinerary: async (req, res) => {
     try {
-      const { title, description, daysCount = 1, isPublic = true, isFeatured = false, coverImage, days } = req.body;
+      const { title, description, daysCount = 1, isPublic = true, isFeatured = false, coverImage, days, startDate, endDate } = req.body;
       
-      // 根据天数自动生成开始和结束日期
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + (daysCount - 1));
+      // 使用前端传入的日期，如果没有则自动生成
+      const sDate = startDate ? new Date(startDate) : new Date();
+      const eDate = endDate ? new Date(endDate) : new Date(sDate);
+      if (!endDate) {
+        eDate.setDate(eDate.getDate() + (daysCount - 1));
+      }
       
       const itinerary = await Itinerary.create({
         userId: null, // null表示官方行程，不关联用户，显示为"官方平台"
         title,
         description,
-        startDate,
-        endDate,
+        startDate: sDate,
+        endDate: eDate,
         isPublic: true, // 官方行程默认公开，所有用户可见
         isFeatured: isFeatured, // 根据前端传入设置
         isOfficial: true, // 标记为官方行程
@@ -149,8 +151,8 @@ const adminItineraryController = {
       });
 
       // 自动创建日期
-      const start = new Date(startDate);
-      const end = new Date(endDate);
+      const start = new Date(sDate);
+      const end = new Date(eDate);
       const createdDays = [];
       
       let currentDate = new Date(start);
@@ -169,11 +171,15 @@ const adminItineraryController = {
 
       // 如果提供了天数活动数据，创建活动
       if (days && Array.isArray(days)) {
-        for (const dayData of days) {
+        const sortedDays = [...days].sort((a, b) => a.dayNumber - b.dayNumber);
+        for (const dayData of sortedDays) {
           const dayRecord = createdDays.find(d => d.dayNumber === dayData.dayNumber);
           if (dayRecord && dayData.activities && Array.isArray(dayData.activities)) {
-            for (let i = 0; i < dayData.activities.length; i++) {
-              const activity = dayData.activities[i];
+            const sortedActivities = [...dayData.activities].sort((a, b) => {
+              return (a.time || a.startTime || '').localeCompare(b.time || b.startTime || '')
+            });
+            for (let i = 0; i < sortedActivities.length; i++) {
+              const activity = sortedActivities[i];
               await ItineraryActivity.create({
                 itineraryDayId: dayRecord.id,
                 title: activity.title,
