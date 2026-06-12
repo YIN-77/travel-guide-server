@@ -2,6 +2,20 @@ const express = require('express');
 const router = express.Router();
 const { Admin, User } = require('../models');
 
+router.get('/env', (req, res) => {
+  res.json({
+    code: 200,
+    message: '环境变量检查',
+    data: {
+      JWT_SECRET: process.env.JWT_SECRET ? '存在' : '缺失',
+      MYSQLHOST: process.env.MYSQLHOST ? '存在' : '缺失',
+      MYSQLUSER: process.env.MYSQLUSER ? '存在' : '缺失',
+      MYSQLPASSWORD: process.env.MYSQLPASSWORD ? '存在' : '缺失',
+      MYSQLDATABASE: process.env.MYSQLDATABASE ? '存在' : '缺失'
+    }
+  });
+});
+
 router.post('/password', async (req, res) => {
   try {
     const { username, password } = req.body;
