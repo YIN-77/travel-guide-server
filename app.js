@@ -11,7 +11,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 中间件
-app.use(cors());
+app.use(cors({
+  origin: ['https://traval-guide-inone.netlify.app', 'http://localhost:5173', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -51,21 +54,27 @@ app.use((err, req, res, next) => {
 // 错误处理
 app.use(errorHandler);
 
-// 启动服务器
-app.listen(PORT, async () => {
-  console.log(`服务器运行在 http://localhost:${PORT}`);
-
-  // 同步数据库
+// 数据库冷启动（Vercel Serverless 每次调用时初始化）
+let dbInitialized = false;
+const initDB = async () => {
+  if (dbInitialized) return;
   try {
     await sequelize.authenticate();
     console.log('数据库连接成功');
-    
-    // 同步表结构（不修改现有表）
     await sequelize.sync({ force: false });
     console.log('数据库表同步成功');
+    dbInitialized = true;
   } catch (error) {
-    console.error('数据库连接失败:', error);
+    console.error('数据库连接失败:', error.message);
   }
-});
+};
+initDB();
+
+// Vercel Serverless 不调用 listen，导出 app 即可
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`服务器运行在 http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;

@@ -2,10 +2,17 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// 确保上传目录存在
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Serverless 环境使用 /tmp，传统环境使用 uploads 目录
+const isServerless = !!process.env.VERCEL;
+const uploadDir = isServerless
+  ? '/tmp/uploads'
+  : path.join(__dirname, '../uploads');
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn('无法创建上传目录:', e.message);
 }
 
 // 配置视频文件上传
