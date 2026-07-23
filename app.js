@@ -18,8 +18,27 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 请求超时中间件（防止函数挂起）
+if (process.env.VERCEL) {
+  app.use((req, res, next) => {
+    // Vercel Hobby 限制 10 秒，在 9 秒后强制返回
+    const timer = setTimeout(() => {
+      if (!res.headersSent) {
+        res.status(504).json({ code: 504, message: '请求超时，请重试', data: null });
+      }
+    }, 9000);
+    res.on('finish', () => clearTimeout(timer));
+    next();
+  });
+}
+
 // 静态文件服务
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 健康检查端点（不依赖数据库）
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // API 路由（Vercel 环境会自动处理 /api 前缀）
 const apiPrefix = process.env.VERCEL ? '/' : '/api';
