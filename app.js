@@ -54,21 +54,19 @@ app.use((err, req, res, next) => {
 // 错误处理
 app.use(errorHandler);
 
-// 数据库冷启动（Vercel Serverless 每次调用时初始化）
-let dbInitialized = false;
+// 数据库冷启动初始化（不阻塞请求处理）
 const initDB = async () => {
-  if (dbInitialized) return;
   try {
     await sequelize.authenticate();
     console.log('数据库连接成功');
     await sequelize.sync({ force: false });
     console.log('数据库表同步成功');
-    dbInitialized = true;
   } catch (error) {
-    console.error('数据库连接失败:', error.message);
+    console.error('数据库初始化失败（将重试）:', error.message);
   }
 };
-initDB();
+// 延迟初始化，避免阻塞模块加载
+setTimeout(() => initDB(), 0);
 
 // Vercel Serverless 不调用 listen，导出 app 即可
 if (!process.env.VERCEL) {
