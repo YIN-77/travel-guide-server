@@ -21,8 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 // 静态文件服务
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API 路由
-app.use('/api', routes);
+// API 路由（Vercel 环境会自动处理 /api 前缀）
+const apiPrefix = process.env.VERCEL ? '/' : '/api';
+app.use(apiPrefix, routes);
 
 // Multer 错误处理
 app.use((err, req, res, next) => {
