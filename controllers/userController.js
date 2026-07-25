@@ -110,11 +110,20 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    // 每日登录积分（每天最多1次）
-    const pointResult = await pointService.addDailyLoginPoints(user.id);
+    // 每日登录积分（每天最多1次），不阻塞登录主流程
+    try {
+      await pointService.addDailyLoginPoints(user.id);
+    } catch (err) {
+      console.error('每日登录积分发放失败（不影响登录）:', err.message);
+    }
 
-    // 重新获取用户数据（因为积分可能已更新）
-    const updatedUser = await User.findByPk(user.id);
+    // 重新获取用户数据（积分可能已更新），如果失败使用原始用户
+    let updatedUser = user;
+    try {
+      updatedUser = await User.findByPk(user.id) || user;
+    } catch (err) {
+      console.error('获取更新后用户数据失败，使用原始数据:', err.message);
+    }
 
     const token = jwt.sign(
       { id: updatedUser.id, username: updatedUser.username, nickname: updatedUser.nickname },
