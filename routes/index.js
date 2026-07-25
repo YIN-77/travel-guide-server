@@ -19,6 +19,7 @@ const guideRoutes = require('./guides');
 const newsRoutes = require('./news');
 const interactionRoutes = require('./interactions');
 const resetRoutes = require('./reset');
+const searchRoutes = require('./search');
 
 router.use('/auth', authRoutes);
 router.use('/reset', resetRoutes);
@@ -40,5 +41,6 @@ router.use('/itineraries', itineraryRoutes);
 router.use('/guides', guideRoutes);
 router.use('/news', newsRoutes);
 router.use('/interactions', interactionRoutes);
+router.use('/search', searchRoutes);
 
 module.exports = router;

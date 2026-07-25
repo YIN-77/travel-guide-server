@@ -26,6 +26,11 @@ const Interaction = sequelize.define('Interaction', {
     type: DataTypes.ENUM('like', 'favorite', 'share'),
     allowNull: false,
     comment: '交互类型：点赞/收藏/分享'
+  },
+  group_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: '收藏夹分组ID'
   }
 }, {
   tableName: 'interactions',

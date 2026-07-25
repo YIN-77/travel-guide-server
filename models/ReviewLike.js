@@ -1,30 +1,31 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Favorite = sequelize.define('Favorite', {
+const ReviewLike = sequelize.define('ReviewLike', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
+  review_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false
-  },
-  destination_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  group_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment: '收藏夹分组ID'
   }
 }, {
-  tableName: 'favorites',
+  tableName: 'review_likes',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['review_id', 'user_id']
+    }
+  ]
 });
 
-module.exports = Favorite;
+module.exports = ReviewLike;

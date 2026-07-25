@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const pointService = require('../services/pointService');
 require('dotenv').config();
 
 // 用户注册
@@ -65,7 +66,9 @@ exports.register = async (req, res, next) => {
           email: user.email,
           nickname: user.nickname,
           avatar: user.avatar,
-          bio: user.bio
+          bio: user.bio,
+          points: user.points || 0,
+          level: user.level || 1
         }
       }
     });
@@ -107,8 +110,14 @@ exports.login = async (req, res, next) => {
       });
     }
 
+    // 每日登录积分（每天最多1次）
+    const pointResult = await pointService.addDailyLoginPoints(user.id);
+
+    // 重新获取用户数据（因为积分可能已更新）
+    const updatedUser = await User.findByPk(user.id);
+
     const token = jwt.sign(
-      { id: user.id, username: user.username, nickname: user.nickname },
+      { id: updatedUser.id, username: updatedUser.username, nickname: updatedUser.nickname },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
@@ -119,12 +128,14 @@ exports.login = async (req, res, next) => {
       data: {
         token,
         user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          nickname: user.nickname,
-          avatar: user.avatar,
-          bio: user.bio
+          id: updatedUser.id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          nickname: updatedUser.nickname,
+          avatar: updatedUser.avatar,
+          bio: updatedUser.bio,
+          points: updatedUser.points || 0,
+          level: updatedUser.level || 1
         }
       }
     });
@@ -137,7 +148,7 @@ exports.login = async (req, res, next) => {
 exports.getProfile = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ['id', 'username', 'email', 'nickname', 'avatar', 'bio', 'created_at']
+      attributes: ['id', 'username', 'email', 'nickname', 'avatar', 'bio', 'created_at', 'points', 'level', 'last_login_date']
     });
 
     res.json({

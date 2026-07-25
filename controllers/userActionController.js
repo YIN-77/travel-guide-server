@@ -1,5 +1,6 @@
 const { User, Favorite, Like, Review, Destination, Tag, Interaction } = require('../models');
 const notificationController = require('./notificationController');
+const pointService = require('../services/pointService');
 
 // 收藏景点
 exports.toggleFavorite = async (req, res, next) => {
@@ -208,7 +209,7 @@ exports.getLikes = async (req, res, next) => {
 // 添加评论
 exports.addReview = async (req, res, next) => {
   try {
-    const { destinationId, content, rating } = req.body;
+    const { destinationId, content, rating, images } = req.body;
     const userId = req.user.id;
     const user = req.user;
 
@@ -225,7 +226,8 @@ exports.addReview = async (req, res, next) => {
       user_id: userId,
       user_name: user.nickname || user.username,
       content,
-      rating: rating || 5
+      rating: rating || 5,
+      images: images || []
     });
     
     // 获取景点信息用于通知
@@ -242,6 +244,9 @@ exports.addReview = async (req, res, next) => {
       message: '评论成功',
       data: review
     });
+
+    // 发布评论 +5分
+    pointService.addPoints(userId, 5).catch(() => {});
   } catch (error) {
     next(error);
   }

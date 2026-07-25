@@ -1,4 +1,5 @@
 const { Interaction, Guide, News, Itinerary, User, Destination } = require('../models');
+const pointService = require('../services/pointService');
 
 // 目标类型映射到模型
 const targetModels = {
@@ -7,6 +8,20 @@ const targetModels = {
   news: News,
   itinerary: Itinerary
 };
+
+// 获取目标对象的作者ID
+async function getTargetOwnerId(targetType, targetId) {
+  const TargetModel = targetModels[targetType];
+  if (!TargetModel) return null;
+  
+  const target = await TargetModel.findByPk(targetId);
+  if (!target) return null;
+  
+  if (targetType === 'guide') return target.author_id;
+  if (targetType === 'itinerary') return target.userId;
+  // destination 和 news 没有明确的作者字段
+  return null;
+}
 
 // 点赞
 exports.like = async (req, res, next) => {
@@ -74,6 +89,13 @@ exports.like = async (req, res, next) => {
     // 更新目标的点赞数
     if (target.likes !== undefined) {
       await target.increment('likes');
+    }
+
+    // 给内容作者加积分（被点赞+1，攻略被点赞+2）
+    const ownerId = await getTargetOwnerId(target_type_val, target_id_val);
+    if (ownerId && ownerId !== userId) {
+      const likePoints = target_type_val === 'guide' ? 2 : 1;
+      pointService.addPoints(ownerId, likePoints).catch(() => {});
     }
 
     res.json({
@@ -211,6 +233,9 @@ exports.favorite = async (req, res, next) => {
     if (target.favorites !== undefined) {
       await target.increment('favorites');
     }
+
+    // 收藏景点 +2分
+    pointService.addPoints(userId, 2).catch(() => {});
 
     res.json({
       code: 200,

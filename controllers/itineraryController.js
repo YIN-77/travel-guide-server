@@ -1,5 +1,6 @@
 const { Itinerary, ItineraryDay, ItineraryActivity, Destination, User, sequelize } = require('../models');
 const { Op } = require('sequelize');
+const pointService = require('../services/pointService');
 
 const itineraryController = {
   getItineraries: async (req, res) => {
@@ -128,6 +129,9 @@ const itineraryController = {
       });
 
       res.json({ code: 200, data: fullItinerary, message: '创建成功' });
+
+      // 创建行程 +10分
+      pointService.addPoints(req.user.id, 10).catch(() => {});
     } catch (error) {
       await transaction.rollback();
       console.error('创建行程失败:', error);

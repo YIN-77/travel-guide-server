@@ -19,7 +19,7 @@ const userAuthMiddleware = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     console.log('Token验证成功，用户ID:', decoded.id);
     req.user = decoded;
     next();

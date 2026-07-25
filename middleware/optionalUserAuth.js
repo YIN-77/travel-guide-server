@@ -8,7 +8,7 @@ const optionalUserAuthMiddleware = (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
       req.user = decoded;
     } catch (error) {
       // Token无效或过期时，不阻止请求，只是不设置req.user

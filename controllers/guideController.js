@@ -1,5 +1,6 @@
 const { Guide, User } = require('../models');
 const { Op } = require('sequelize');
+const pointService = require('../services/pointService');
 
 const guideController = {
   // 获取所有已发布的攻略
@@ -137,6 +138,9 @@ const guideController = {
         data: guide,
         message: '创建成功'
       });
+
+      // 发布攻略 +20分
+      pointService.addPoints(req.user.id, 20).catch(() => {});
     } catch (error) {
       console.error('创建攻略失败:', error);
       res.status(500).json({ code: 500, message: '服务器错误: ' + error.message });

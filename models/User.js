@@ -32,6 +32,21 @@ const User = sequelize.define('User', {
   bio: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+  points: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    comment: '用户积分'
+  },
+  level: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1,
+    comment: '用户等级 1-6'
+  },
+  last_login_date: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: '最后登录日期（用于每日登录积分）'
   }
 }, {
   tableName: 'users',
