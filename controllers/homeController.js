@@ -9,7 +9,7 @@ const homeController = {
         Destination.findAll({
           include: [{
             model: Tag,
-            as: 'tags',
+            attributes: ['id', 'name'],
             through: { attributes: [] }
           }],
           order: [['rating', 'DESC']],
@@ -19,7 +19,6 @@ const homeController = {
           where: { isPublic: true },
           include: [{
             model: User,
-            as: 'user',
             attributes: ['id', 'username', 'avatar']
           }],
           order: [['created_at', 'DESC']],
@@ -29,7 +28,7 @@ const homeController = {
           where: { status: 'published' },
           include: [{
             model: User,
-            as: 'user',
+            as: 'author',
             attributes: ['id', 'username', 'avatar']
           }],
           order: [['created_at', 'DESC']],
@@ -45,7 +44,7 @@ const homeController = {
       // 序列化景点数据（提取 tags 名称数组）
       const formattedDestinations = destinations.map(d => ({
         ...d.toJSON(),
-        tags: (d.tags || []).map(t => t.name)
+        tags: (d.Tags || []).map(t => t.name)
       }));
 
       res.json({
