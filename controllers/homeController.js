@@ -1,4 +1,4 @@
-const { Destination, Tag, Itinerary, Guide, News, User } = require('../models');
+const { Destination, Tag, Itinerary, ItineraryDay, Guide, News, User } = require('../models');
 const { Op } = require('sequelize');
 
 const homeController = {
@@ -17,10 +17,17 @@ const homeController = {
         }),
         Itinerary.findAll({
           where: { isPublic: true },
-          include: [{
-            model: User,
-            attributes: ['id', 'username', 'avatar']
-          }],
+          include: [
+            {
+              model: User,
+              attributes: ['id', 'username', 'nickname', 'avatar']
+            },
+            {
+              model: ItineraryDay,
+              as: 'days',
+              attributes: ['id', 'dayNumber']
+            }
+          ],
           order: [['created_at', 'DESC']],
           limit: 50
         }),
@@ -52,9 +59,28 @@ const homeController = {
         msg: 'success',
         data: {
           destinations: formattedDestinations,
-          itineraries: itineraries.map(i => i.toJSON()),
-          guides: guidesRes.map(g => g.toJSON()),
-          newsList: newsList.map(n => n.toJSON())
+          itineraries: itineraries.map(i => {
+            const json = i.toJSON();
+            return {
+              ...json,
+              author_name: json.User?.nickname || json.User?.username || (json.isOfficial ? '官方平台' : '匿名'),
+              daysCount: json.days?.length || 1
+            };
+          }),
+          guides: guidesRes.map(g => {
+            const json = g.toJSON();
+            return {
+              ...json,
+              author_name: json.author_name || json.author?.nickname || json.author?.username || (json.is_official ? '官方平台' : '匿名')
+            };
+          }),
+          newsList: newsList.map(n => {
+            const json = n.toJSON();
+            return {
+              ...json,
+              author: json.author || '官方平台'
+            };
+          })
         }
       });
     } catch (error) {
